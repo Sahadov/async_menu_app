@@ -5,7 +5,7 @@ import redis  # type: ignore
 
 
 def get_redis_client():
-    return redis.Redis(host='localhost', port=6379, db=0)
+    return redis.Redis(host='redis', port=5370, db=0)
 
 
 class RedisCache:

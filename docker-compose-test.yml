@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15
+    container_name: db_app
+    restart: always
+    command: -p 2121
+    expose:
+      - 2121
+    env_file:
+      - .env-non-dev
+
+  redis:
+    image: redis:7
+    container_name: redis_app
+    command: --port 5370
+    expose:
+      - 5370
+
+  app:
+    build:
+      context: .
+    env_file:
+      - .env-non-dev
+    container_name: fastapi_app_ylab
+    command: ["/fastapi_app/docker/app.sh"]
+    ports:
+      - 9999:8000
+    depends_on:
+      - db
+
+  pytest:
+    build:
+      context: .
+      dockerfile: Dockerfile-test
+    environment:
+      - PYTHONPATH=/test
+      - SQLALCHEMY_DATABASE_URL="postgresql+asyncpg://postgres:postgres@db:2121/resto"
+      - URL=http://web-test:8000
+    command: >
+      /bin/bash -c "
+      export PYTHONPATH=/test &&
+      pytest tests
+      "
+    depends_on:
+      app:
+        condition: service_started
