@@ -10,7 +10,8 @@ ADD . /test
 # set environment variables
 ENV PYTHONPATH=/test
 ENV SQLALCHEMY_DATABASE_URL="postgresql+asyncpg://postgres:postgres@db:2121/resto"
-ENV URL="http://web-test:8000"
+#ENV URL="http://web-test:8000"
+ENV URL="http://app-test:8000"
 
 # Install dependencies
 RUN pip install -r requirements.txt
