@@ -1,11 +1,9 @@
 from pydantic import BaseModel
-from sqlalchemy.dialects.postgresql import UUID
 
 
 class SubMenuBase(BaseModel):
     title: str
     description: str | None = None
-    
 
 
 class SubMenuCreate(SubMenuBase):

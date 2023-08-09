@@ -11,6 +11,6 @@ class _CompactJSON:
 
     @staticmethod
     def dumps(obj: _t.Any, **kwargs: _t.Any) -> str:
-        kwargs.setdefault("ensure_ascii", False)
-        kwargs.setdefault("separators", (",", ":"))
+        kwargs.setdefault('ensure_ascii', False)
+        kwargs.setdefault('separators', (',', ':'))
         return _json.dumps(obj, **kwargs)

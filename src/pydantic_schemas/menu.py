@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from sqlalchemy.dialects.postgresql import UUID
 
 
 class MenuBase(BaseModel):
@@ -13,7 +12,6 @@ class MenuCreate(MenuBase):
 
 class Menu(MenuBase):
     id: int
-    
 
     class Config:
         orm_mode = True

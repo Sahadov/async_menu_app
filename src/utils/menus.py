@@ -1,51 +1,46 @@
-from abc import ABC, abstractmethod
+# from abc import ABC, abstractmethod
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import insert, select, update, delete
-from db.db_setup import async_session_maker
 from fastapi import HTTPException
-from pydantic_schemas.menu import MenuCreate
-from db.models.menu import Menu
-from db.models.submenu import SubMenu
+from sqlalchemy import delete, select
+
+from db.db_setup import async_session_maker
 from db.models.dish import Dish
+from db.models.submenu import SubMenu
 
-
-
+'''
 class AbstractRepository(ABC):
 
     @abstractmethod
-    async def get_menus():
+    async def get_menus(self):
         raise NotImplementedError
-    
+
     @abstractmethod
-    async def create_menu():
+    async def create_menu(self):
         raise NotImplementedError
-    
+
     @abstractmethod
-    async def get_menu():
+    async def get_menu(self):
         raise NotImplementedError
-    
+
     @abstractmethod
-    async def delete_menu():
+    async def delete_menu(self):
         raise NotImplementedError
-    
+
     @abstractmethod
-    async def update_menu():
+    async def update_menu(self):
         raise NotImplementedError
-    
+
+'''
 
 
-class SQLAlchemyRepository(AbstractRepository):
+class SQLAlchemyRepository():  # AbstractRepository
     model = None
 
-    
     async def get_menus(self):
         async with async_session_maker() as session:
             menus = await session.execute(select(self.model))
             return list(menus.scalars())
 
-            
-        
     async def create_menu(self, new_menu):
         async with async_session_maker() as session:
             db_menu = self.model(**new_menu.model_dump())
@@ -53,24 +48,23 @@ class SQLAlchemyRepository(AbstractRepository):
             await session.commit()
             await session.refresh(db_menu)
             db_menu_dict = db_menu.__dict__
-            db_menu_dict["id"] = str(db_menu_dict["id"])
+            db_menu_dict['id'] = str(db_menu_dict['id'])
 
             return db_menu_dict
 
     async def get_menu(self, menu_id: int):
         async with async_session_maker() as session:
             try:
-                #получаем конкретное меню
-                db_menu = await session.execute(select(self.model).where(self.model.id == menu_id))    
+                # получаем конкретное меню
+                db_menu = await session.execute(select(self.model).where(self.model.id == menu_id))  # type: ignore
                 db_menu_dict = db_menu.scalars().all()[0]
 
-                
-                #получаем список подменю и считаем его длину
+                # получаем список подменю и считаем его длину
                 db_submenu = await session.execute(select(SubMenu).where(SubMenu.parent_id == menu_id))
                 db_submenu_list = db_submenu.scalars().all()
                 db_menu_dict.submenus_count = len(db_submenu_list)
 
-                #получаем список блюд и считаем его длину
+                # получаем список блюд и считаем его длину
                 db_dishes = await session.execute(select(Dish).where(Dish.main_menu_id == menu_id))
                 db_dishes_list = db_dishes.scalars().all()
                 db_menu_dict.dishes_count = len(db_dishes_list)
@@ -78,34 +72,32 @@ class SQLAlchemyRepository(AbstractRepository):
                 db_menu_dict.id = str(db_menu_dict.id)
 
                 return db_menu_dict
-            except:
-                raise HTTPException(status_code=404, detail="menu not found")
-        
+            except IndexError:
+                raise HTTPException(status_code=404, detail='menu not found')
+
     async def delete_menu(self, menu_id: int):
         async with async_session_maker() as session:
-            db_menu = await session.execute(delete(self.model).where(self.model.id == menu_id))
+            db_menu = await session.execute(delete(self.model).where(self.model.id == menu_id))  # type: ignore
             await session.commit()
             return db_menu
-        
+
     async def update_menu(self, menu_id: int, title: str, description: str):
         async with async_session_maker() as session:
             db_menu = await session.get(self.model, menu_id)
 
             db_menu.title = title
             db_menu.description = description
-   
+
             await session.commit()
             await session.refresh(db_menu)
 
             db_menu_dict = db_menu.__dict__
             db_submenu = await session.execute(select(SubMenu).where(SubMenu.parent_id == menu_id))
             db_submenu_list = db_submenu.scalars().all()
-            db_menu_dict["submenus_count"] = len(db_submenu_list)
+            db_menu_dict['submenus_count'] = len(db_submenu_list)
 
             db_dishes = await session.execute(select(Dish).where(Dish.main_menu_id == menu_id))
             db_dishes_list = db_dishes.scalars().all()
-            db_menu_dict["dishes_count"] = len(db_dishes_list)
-    
-            return db_menu
+            db_menu_dict['dishes_count'] = len(db_dishes_list)
 
-    
+            return db_menu

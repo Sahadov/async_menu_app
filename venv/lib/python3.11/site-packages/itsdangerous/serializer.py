@@ -89,7 +89,7 @@ class Serializer:
     def __init__(
         self,
         secret_key: _t_secret_key,
-        salt: _t_opt_str_bytes = b"itsdangerous",
+        salt: _t_opt_str_bytes = b'itsdangerous',
         serializer: _t.Any = None,
         serializer_kwargs: _t_opt_kwargs = None,
         signer: _t.Optional[_t_signer] = None,
@@ -151,13 +151,13 @@ class Serializer:
 
         try:
             if is_text:
-                return serializer.loads(payload.decode("utf-8"))
+                return serializer.loads(payload.decode('utf-8'))
 
             return serializer.loads(payload)
         except Exception as e:
             raise BadPayload(
-                "Could not load the payload because an exception"
-                " occurred on unserializing the data.",
+                'Could not load the payload because an exception'
+                ' occurred on unserializing the data.',
                 original_error=e,
             ) from e
 
@@ -208,7 +208,7 @@ class Serializer:
         rv = self.make_signer(salt).sign(payload)
 
         if self.is_text_serializer:
-            return rv.decode("utf-8")
+            return rv.decode('utf-8')
 
         return rv
 

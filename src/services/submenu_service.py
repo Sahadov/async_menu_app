@@ -1,9 +1,9 @@
 import redis  # type: ignore
 from fastapi import Depends
 
+from pydantic_schemas.submenu import SubMenuCreate
 from repositories.redis_cache import RedisCache, get_redis_client
 from repositories.submenus import SubMenuRepository
-from pydantic_schemas.submenu import SubMenuCreate, SubMenu
 
 
 class SubMenuService:
@@ -18,14 +18,14 @@ class SubMenuService:
             return cached
         else:
             data = await self.submenu_repository.get_submenus(menu_id)
-            #data.id = str(data.id)
+            # data.id = str(data.id)
             self.cache_client.set(f'all:{menu_id}', data)
             return data
 
     async def create_submenu(self, new_menu: SubMenuCreate, menu_id: int):
         data = await self.submenu_repository.create_submenu(new_menu, menu_id)
-        data["id"] = str(data["id"])
-        data["parent_id"] = str(data["parent_id"])
+        data['id'] = str(data['id'])
+        data['parent_id'] = str(data['parent_id'])
         self.cache_client.set(f'{menu_id}:{data["id"]})', data)
         self.cache_client.clear_after_change(menu_id)
         return data

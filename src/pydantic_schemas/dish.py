@@ -1,12 +1,11 @@
 from pydantic import BaseModel
-from sqlalchemy.dialects.postgresql import UUID
 
 
 class DishBase(BaseModel):
     title: str
     description: str | None = None
-    price: float | None = None | str
-    
+    price: float | str | None = None
+
 
 class DishCreate(DishBase):
     pass

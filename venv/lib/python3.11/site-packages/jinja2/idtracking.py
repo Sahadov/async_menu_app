@@ -3,15 +3,15 @@ import typing as t
 from . import nodes
 from .visitor import NodeVisitor
 
-VAR_LOAD_PARAMETER = "param"
-VAR_LOAD_RESOLVE = "resolve"
-VAR_LOAD_ALIAS = "alias"
-VAR_LOAD_UNDEFINED = "undefined"
+VAR_LOAD_PARAMETER = 'param'
+VAR_LOAD_RESOLVE = 'resolve'
+VAR_LOAD_ALIAS = 'alias'
+VAR_LOAD_UNDEFINED = 'undefined'
 
 
 def find_symbols(
-    nodes: t.Iterable[nodes.Node], parent_symbols: t.Optional["Symbols"] = None
-) -> "Symbols":
+    nodes: t.Iterable[nodes.Node], parent_symbols: t.Optional['Symbols'] = None
+) -> 'Symbols':
     sym = Symbols(parent=parent_symbols)
     visitor = FrameSymbolVisitor(sym)
     for node in nodes:
@@ -20,8 +20,8 @@ def find_symbols(
 
 
 def symbols_for_node(
-    node: nodes.Node, parent_symbols: t.Optional["Symbols"] = None
-) -> "Symbols":
+    node: nodes.Node, parent_symbols: t.Optional['Symbols'] = None
+) -> 'Symbols':
     sym = Symbols(parent=parent_symbols)
     sym.analyze_node(node)
     return sym
@@ -29,7 +29,7 @@ def symbols_for_node(
 
 class Symbols:
     def __init__(
-        self, parent: t.Optional["Symbols"] = None, level: t.Optional[int] = None
+        self, parent: t.Optional['Symbols'] = None, level: t.Optional[int] = None
     ) -> None:
         if level is None:
             if parent is None:
@@ -50,7 +50,7 @@ class Symbols:
     def _define_ref(
         self, name: str, load: t.Optional[t.Tuple[str, t.Optional[str]]] = None
     ) -> str:
-        ident = f"l_{self.level}_{name}"
+        ident = f'l_{self.level}_{name}'
         self.refs[name] = ident
         if load is not None:
             self.loads[ident] = load
@@ -78,12 +78,12 @@ class Symbols:
         rv = self.find_ref(name)
         if rv is None:
             raise AssertionError(
-                "Tried to resolve a name to a reference that was"
-                f" unknown to the frame ({name!r})"
+                'Tried to resolve a name to a reference that was'
+                f' unknown to the frame ({name!r})'
             )
         return rv
 
-    def copy(self) -> "Symbols":
+    def copy(self) -> 'Symbols':
         rv = object.__new__(self.__class__)
         rv.__dict__.update(self.__dict__)
         rv.refs = self.refs.copy()
@@ -117,7 +117,7 @@ class Symbols:
         if self.find_ref(name) is None:
             self._define_ref(name, load=(VAR_LOAD_RESOLVE, name))
 
-    def branch_update(self, branch_symbols: t.Sequence["Symbols"]) -> None:
+    def branch_update(self, branch_symbols: t.Sequence['Symbols']) -> None:
         stores: t.Dict[str, int] = {}
         for branch in branch_symbols:
             for target in branch.stores:
@@ -135,7 +135,7 @@ class Symbols:
                 continue
 
             target = self.find_ref(name)  # type: ignore
-            assert target is not None, "should not happen"
+            assert target is not None, 'should not happen'
 
             if self.parent is not None:
                 outer_target = self.parent.find_ref(name)
@@ -146,7 +146,7 @@ class Symbols:
 
     def dump_stores(self) -> t.Dict[str, str]:
         rv: t.Dict[str, str] = {}
-        node: t.Optional["Symbols"] = self
+        node: t.Optional['Symbols'] = self
 
         while node is not None:
             for name in sorted(node.stores):
@@ -159,7 +159,7 @@ class Symbols:
 
     def dump_param_targets(self) -> t.Set[str]:
         rv = set()
-        node: t.Optional["Symbols"] = self
+        node: t.Optional['Symbols'] = self
 
         while node is not None:
             for target, (instr, _) in self.loads.items():
@@ -172,7 +172,7 @@ class Symbols:
 
 
 class RootVisitor(NodeVisitor):
-    def __init__(self, symbols: "Symbols") -> None:
+    def __init__(self, symbols: 'Symbols') -> None:
         self.sym_visitor = FrameSymbolVisitor(symbols)
 
     def _simple_visit(self, node: nodes.Node, **kwargs: t.Any) -> None:
@@ -192,7 +192,7 @@ class RootVisitor(NodeVisitor):
             self.sym_visitor.visit(child)
 
     def visit_CallBlock(self, node: nodes.CallBlock, **kwargs: t.Any) -> None:
-        for child in node.iter_child_nodes(exclude=("call",)):
+        for child in node.iter_child_nodes(exclude=('call',)):
             self.sym_visitor.visit(child)
 
     def visit_OverlayScope(self, node: nodes.OverlayScope, **kwargs: t.Any) -> None:
@@ -200,20 +200,20 @@ class RootVisitor(NodeVisitor):
             self.sym_visitor.visit(child)
 
     def visit_For(
-        self, node: nodes.For, for_branch: str = "body", **kwargs: t.Any
+        self, node: nodes.For, for_branch: str = 'body', **kwargs: t.Any
     ) -> None:
-        if for_branch == "body":
+        if for_branch == 'body':
             self.sym_visitor.visit(node.target, store_as_param=True)
             branch = node.body
-        elif for_branch == "else":
+        elif for_branch == 'else':
             branch = node.else_
-        elif for_branch == "test":
+        elif for_branch == 'test':
             self.sym_visitor.visit(node.target, store_as_param=True)
             if node.test is not None:
                 self.sym_visitor.visit(node.test)
             return
         else:
-            raise RuntimeError("Unknown for branch")
+            raise RuntimeError('Unknown for branch')
 
         if branch:
             for item in branch:
@@ -226,24 +226,24 @@ class RootVisitor(NodeVisitor):
             self.sym_visitor.visit(child)
 
     def generic_visit(self, node: nodes.Node, *args: t.Any, **kwargs: t.Any) -> None:
-        raise NotImplementedError(f"Cannot find symbols for {type(node).__name__!r}")
+        raise NotImplementedError(f'Cannot find symbols for {type(node).__name__!r}')
 
 
 class FrameSymbolVisitor(NodeVisitor):
     """A visitor for `Frame.inspect`."""
 
-    def __init__(self, symbols: "Symbols") -> None:
+    def __init__(self, symbols: 'Symbols') -> None:
         self.symbols = symbols
 
     def visit_Name(
         self, node: nodes.Name, store_as_param: bool = False, **kwargs: t.Any
     ) -> None:
         """All assignments to names go through this function."""
-        if store_as_param or node.ctx == "param":
+        if store_as_param or node.ctx == 'param':
             self.symbols.declare_parameter(node.name)
-        elif node.ctx == "store":
+        elif node.ctx == 'store':
             self.symbols.store(node.name)
-        elif node.ctx == "load":
+        elif node.ctx == 'load':
             self.symbols.load(node.name)
 
     def visit_NSRef(self, node: nodes.NSRef, **kwargs: t.Any) -> None:
@@ -253,7 +253,7 @@ class FrameSymbolVisitor(NodeVisitor):
         self.visit(node.test, **kwargs)
         original_symbols = self.symbols
 
-        def inner_visit(nodes: t.Iterable[nodes.Node]) -> "Symbols":
+        def inner_visit(nodes: t.Iterable[nodes.Node]) -> 'Symbols':
             self.symbols = rv = original_symbols.copy()
 
             for subnode in nodes:

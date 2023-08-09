@@ -1,9 +1,10 @@
 import redis  # type: ignore
 from fastapi import Depends
 
-from repositories.redis_cache import RedisCache, get_redis_client
+from pydantic_schemas.dish import DishCreate
 from repositories.dishes import DishRepository
-from pydantic_schemas.dish import DishCreate, Dish
+from repositories.redis_cache import RedisCache, get_redis_client
+
 
 class DishService:
     def __init__(self, dish_repository: DishRepository = Depends(),

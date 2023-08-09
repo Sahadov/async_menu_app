@@ -34,14 +34,14 @@ def native_concat(values: t.Iterable[t.Any]) -> t.Optional[t.Any]:
     else:
         if isinstance(values, GeneratorType):
             values = chain(head, values)
-        raw = "".join([str(v) for v in values])
+        raw = ''.join([str(v) for v in values])
 
     try:
         return literal_eval(
             # In Python 3.10+ ast.literal_eval removes leading spaces/tabs
             # from the given string. For backwards compatibility we need to
             # parse the string ourselves without removing leading spaces/tabs.
-            parse(raw, mode="eval")
+            parse(raw, mode='eval')
         )
     except (ValueError, SyntaxError, MemoryError):
         return raw
@@ -57,7 +57,7 @@ class NativeCodeGenerator(CodeGenerator):
         return value
 
     def _output_const_repr(self, group: t.Iterable[t.Any]) -> str:
-        return repr("".join([str(v) for v in group]))
+        return repr(''.join([str(v) for v in group]))
 
     def _output_child_to_const(
         self, node: nodes.Expr, frame: Frame, finalize: CodeGenerator._FinalizeInfo
@@ -82,7 +82,7 @@ class NativeCodeGenerator(CodeGenerator):
         self, node: nodes.Expr, frame: Frame, finalize: CodeGenerator._FinalizeInfo
     ) -> None:
         if finalize.src is not None:
-            self.write(")")
+            self.write(')')
 
 
 class NativeEnvironment(Environment):
@@ -114,7 +114,7 @@ class NativeTemplate(Template):
     async def render_async(self, *args: t.Any, **kwargs: t.Any) -> t.Any:
         if not self.environment.is_async:
             raise RuntimeError(
-                "The environment was not created with async mode enabled."
+                'The environment was not created with async mode enabled.'
             )
 
         ctx = self.new_context(dict(*args, **kwargs))

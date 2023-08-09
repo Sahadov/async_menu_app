@@ -14,16 +14,16 @@ def escape(s: t.Any) -> Markup:
     :param s: An object to be converted to a string and escaped.
     :return: A :class:`Markup` string with the escaped text.
     """
-    if hasattr(s, "__html__"):
+    if hasattr(s, '__html__'):
         return Markup(s.__html__())
 
     return Markup(
         str(s)
-        .replace("&", "&amp;")
-        .replace(">", "&gt;")
-        .replace("<", "&lt;")
-        .replace("'", "&#39;")
-        .replace('"', "&#34;")
+        .replace('&', '&amp;')
+        .replace('>', '&gt;')
+        .replace('<', '&lt;')
+        .replace("'", '&#39;')
+        .replace('"', '&#34;')
     )
 
 

@@ -35,7 +35,7 @@ class NoneAlgorithm(SigningAlgorithm):
     """
 
     def get_signature(self, key: bytes, value: bytes) -> bytes:
-        return b""
+        return b''
 
 
 class HMACAlgorithm(SigningAlgorithm):
@@ -115,13 +115,13 @@ class Signer:
     #: values are ``concat``, ``django-concat``, and ``hmac``.
     #:
     #: .. versionadded:: 0.14
-    default_key_derivation: str = "django-concat"
+    default_key_derivation: str = 'django-concat'
 
     def __init__(
         self,
         secret_key: _t_secret_key,
-        salt: _t_opt_str_bytes = b"itsdangerous.Signer",
-        sep: _t_str_bytes = b".",
+        salt: _t_opt_str_bytes = b'itsdangerous.Signer',
+        sep: _t_str_bytes = b'.',
         key_derivation: _t.Optional[str] = None,
         digest_method: _t.Optional[_t.Any] = None,
         algorithm: _t.Optional[SigningAlgorithm] = None,
@@ -136,15 +136,15 @@ class Signer:
 
         if self.sep in _base64_alphabet:
             raise ValueError(
-                "The given separator cannot be used because it may be"
-                " contained in the signature itself. ASCII letters,"
+                'The given separator cannot be used because it may be'
+                ' contained in the signature itself. ASCII letters,'
                 " digits, and '-_=' must not be used."
             )
 
         if salt is not None:
             salt = want_bytes(salt)
         else:
-            salt = b"itsdangerous.Signer"
+            salt = b'itsdangerous.Signer'
 
         self.salt = salt
 
@@ -188,20 +188,20 @@ class Signer:
         else:
             secret_key = want_bytes(secret_key)
 
-        if self.key_derivation == "concat":
+        if self.key_derivation == 'concat':
             return _t.cast(bytes, self.digest_method(self.salt + secret_key).digest())
-        elif self.key_derivation == "django-concat":
+        elif self.key_derivation == 'django-concat':
             return _t.cast(
-                bytes, self.digest_method(self.salt + b"signer" + secret_key).digest()
+                bytes, self.digest_method(self.salt + b'signer' + secret_key).digest()
             )
-        elif self.key_derivation == "hmac":
+        elif self.key_derivation == 'hmac':
             mac = hmac.new(secret_key, digestmod=self.digest_method)
             mac.update(self.salt)
             return mac.digest()
-        elif self.key_derivation == "none":
+        elif self.key_derivation == 'none':
             return secret_key
         else:
-            raise TypeError("Unknown key derivation method")
+            raise TypeError('Unknown key derivation method')
 
     def get_signature(self, value: _t_str_bytes) -> bytes:
         """Returns the signature for the given value."""
@@ -237,14 +237,14 @@ class Signer:
         signed_value = want_bytes(signed_value)
 
         if self.sep not in signed_value:
-            raise BadSignature(f"No {self.sep!r} found in value")
+            raise BadSignature(f'No {self.sep!r} found in value')
 
         value, sig = signed_value.rsplit(self.sep, 1)
 
         if self.verify_signature(value, sig):
             return value
 
-        raise BadSignature(f"Signature {sig!r} does not match", payload=value)
+        raise BadSignature(f'Signature {sig!r} does not match', payload=value)
 
     def validate(self, signed_value: _t_str_bytes) -> bool:
         """Only validates the given signed value. Returns ``True`` if

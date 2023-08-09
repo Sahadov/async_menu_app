@@ -1,15 +1,14 @@
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from config import DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_PASS
-
 from typing import AsyncGenerator
+
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-SQLALCHEMY_DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+from config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
+
+SQLALCHEMY_DATABASE_URL = f'postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 
 
-Base=declarative_base()
+Base = declarative_base()
 
 
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
