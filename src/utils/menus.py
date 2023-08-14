@@ -2,9 +2,11 @@
 
 from fastapi import HTTPException
 from sqlalchemy import delete, select
+from sqlalchemy.orm import selectinload
 
 from db.db_setup import async_session_maker
 from db.models.dish import Dish
+from db.models.menu import Menu
 from db.models.submenu import SubMenu
 
 '''
@@ -54,6 +56,7 @@ class SQLAlchemyRepository():  # AbstractRepository
 
     async def get_menu(self, menu_id: int):
         async with async_session_maker() as session:
+
             try:
                 # получаем конкретное меню
                 db_menu = await session.execute(select(self.model).where(self.model.id == menu_id))  # type: ignore
@@ -101,3 +104,13 @@ class SQLAlchemyRepository():  # AbstractRepository
             db_menu_dict['dishes_count'] = len(db_dishes_list)
 
             return db_menu
+
+    async def get_full_menus(self):
+        async with async_session_maker() as session:
+            result = await session.execute(
+                select(Menu).options(
+                    selectinload(Menu.submenus).selectinload(SubMenu.dishes)
+                )
+            )
+            menus = result.scalars().all()
+            return menus

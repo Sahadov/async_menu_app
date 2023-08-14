@@ -1,12 +1,5 @@
 from httpx import AsyncClient
 
-
-# проверяем, чтобы изначальный список меню был пустой
-async def test_read_menus(ac: AsyncClient):
-    response = await ac.get('/api/v1/menus')
-    assert response.status_code == 200
-    assert response.json() == []
-
 # проверяем добавление меню
 
 
@@ -21,6 +14,18 @@ async def test_create_menu(ac: AsyncClient):
         'id': '1',
         'description': 'Created menu description'
     }
+
+# проверяем вывод списка меню
+
+
+async def test_read_menus(ac: AsyncClient):
+    response = await ac.get('/api/v1/menus')
+    assert response.status_code == 200
+    assert response.json() == [{
+        'title': 'Created menu',
+        'id': 1,
+        'description': 'Created menu description'
+    }]
 
 # проверяем изменение меню
 
@@ -208,6 +213,38 @@ async def test_read_menu_dishes(ac: AsyncClient):
         'submenus_count': 1,
         'dishes_count': 1
     }
+
+# проверяем получение всех меню с подменю и блюдами
+
+
+async def test_read_full_menu(ac: AsyncClient):
+    response = await ac.get('/api/v1/menus/full')
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            'id': 1,
+            'title': 'Updated menu',
+            'description': 'Updated menu description',
+            'submenus': [
+                {
+                    'title': 'Updated submenu',
+                    'id': 1,
+                    'description': 'Updated submenu description',
+                    'parent_id': 1,
+                    'dishes': [
+                        {
+                            'title': 'Updated dish',
+                            'price': 0.55,
+                            'id': 1,
+                            'description': 'Updated dish description',
+                            'parent_id': 1,
+                            'main_menu_id': 1
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 
 # проверяем удаление блюда
 

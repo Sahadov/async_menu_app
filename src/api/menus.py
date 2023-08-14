@@ -17,6 +17,11 @@ async def create_new_menu(menu: MenuCreate, response: MenuService = Depends()):
     return await response.create_menu(menu)
 
 
+@router.get('/menus/full')
+async def get_full_menus(response: MenuService = Depends()):
+    return await response.read_full_menus()
+
+
 @router.get('/menus/{menu_id}')
 async def read_menu(menu_id: int, response: MenuService = Depends()):
     return await response.read_menu(menu_id)
