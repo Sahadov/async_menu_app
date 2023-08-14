@@ -8,7 +8,7 @@ from src.repositories.admin_tasks import create_from_file, read_excel_to_data
 celery = Celery('tasks')
 
 celery.conf.update(
-    broker_url='pyamqp://guest@localhost//',
+    broker_url='pyamqp://guest:guest@rabbitmq:5672//',
     result_backend='rpc://',
     task_serializer='json',
     result_serializer='json',
