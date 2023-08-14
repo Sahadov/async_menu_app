@@ -3,9 +3,10 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-from src.config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
+# from config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
 
-SQLALCHEMY_DATABASE_URL = f'postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+# SQLALCHEMY_DATABASE_URL = f'postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+SQLALCHEMY_DATABASE_URL = 'postgresql+asyncpg://postgres:159753@localhost:5432/restaurant'
 # SQLALCHEMY_DATABASE_URL = 'postgresql+asyncpg://postgres:postgres@db:2121/resto' для докера
 
 

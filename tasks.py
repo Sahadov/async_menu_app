@@ -1,20 +1,17 @@
+import asyncio
 from datetime import timedelta
 
-# import pandas as pd
+import pandas as pd
 from celery import Celery
-
-'''
 from sqlalchemy import select
-
 
 from src.db.db_setup import async_session_maker
 from src.db.models.dish import Dish
 from src.db.models.menu import Menu
 from src.db.models.submenu import SubMenu
-'''
 
-'''
-async def read_excel_to_data(menu_file: str):
+
+def read_excel_to_data(menu_file: str):
     # читаем файл
     # menu_file = 'admin/Menu.xlsx'
     columns = ['menu_id', 'submenu_id', 'dish_id', 'dish_name', 'dish_description', 'dish_price']
@@ -51,6 +48,7 @@ async def read_excel_to_data(menu_file: str):
     df_dishes = df_dishes.to_dict(orient='records')
     # print(df_dishes)
 
+    full_menu = []
     # получаем итоговое меню
     for menu in df_menus:
         menu['submenus'] = []
@@ -61,9 +59,10 @@ async def read_excel_to_data(menu_file: str):
                 for dish in df_dishes:
                     if (dish['menu_id'] == menu['id']) and (dish['submenu_id'] == sub_menu['id']):
                         sub_menu['dishes'].append(dish)
-    return menu
-'''
-'''
+        full_menu.append(menu)
+    return full_menu
+
+
 async def create_from_file(new_menu: Menu):
     async with async_session_maker() as session:
 
@@ -74,14 +73,14 @@ async def create_from_file(new_menu: Menu):
 
             # проверяем изменения в заголовке и вносим изменения если они есть
             check_menu_title = await session.execute(select(Menu).where(Menu.title == new_menu['title']))
-            if check_menu_title.all() is False:
+            if not check_menu_title.all():  # noqa
                 print('Нужно изменить заголовок меню')
                 db_menu = await session.get(Menu, new_menu['id'])
                 db_menu.title = new_menu['title']
                 await session.commit()
             # проверяем изменения в описании и вносим изменения если они есть
             check_menu_description = await session.execute(select(Menu).where(Menu.description == new_menu['description']))
-            if check_menu_description.all() is False:
+            if not check_menu_description.all():  # noqa
                 print('Нужно изменить описание меню')
                 db_menu = await session.get(Menu, new_menu['id'])
                 db_menu.description = new_menu['description']
@@ -100,7 +99,7 @@ async def create_from_file(new_menu: Menu):
             if check_submenu.all():
                 # проверяем изменения в заголовке и вносим изменения если они есть
                 check_submenu_title = await session.execute(select(SubMenu).where(SubMenu.title == submenu['title']))
-                if check_submenu_title.all() is False:
+                if not check_submenu_title.all():  # noqa
                     db_submenu = await session.get(SubMenu, submenu['id'])
                     db_submenu.title = submenu['title']
                     await session.commit()
@@ -108,7 +107,7 @@ async def create_from_file(new_menu: Menu):
 
                 # проверяем изменения в описании и вносим изменения если они есть
                 check_submenu_description = await session.execute(select(SubMenu).where(SubMenu.description == submenu['description']))
-                if check_submenu_description.all() is False:
+                if not check_submenu_description.all():  # noqa
                     db_submenu = await session.get(SubMenu, submenu['id'])
                     db_submenu.description = submenu['description']
                     await session.commit()
@@ -125,34 +124,32 @@ async def create_from_file(new_menu: Menu):
                 if check_dish.all():
                     # проверяем изменения в заголовке и вносим изменения если они есть
                     check_dish_title = await session.execute(select(Dish).where(Dish.title == dish['title']))
-                    if check_dish_title.all() is False:
+                    if not check_dish_title.all():  # noqa
                         db_dish = await session.get(Dish, dish['id'])
                         db_dish.title = dish['title']
                         await session.commit()
                         print('Изменили заголовок блюда')
                     # проверяем изменения в описании и вносим изменения если они есть
                     check_dish_description = await session.execute(select(Dish).where(Dish.description == dish['description']))
-                    if check_dish_description.all() is False:
+                    if not check_dish_description.all():  # noqa
                         db_dish = await session.get(Dish, dish['id'])
                         db_dish.description = dish['description']
                         await session.commit()
                         print('Изменили описание блюда')
                     # проверяем изменения в цене и вносим изменения если они есть
                     check_dish_price = await session.execute(select(Dish).where(Dish.price == dish['price']))
-                    if check_dish_price.all() is False:
+                    if not check_dish_price.all():  # noqa
                         db_dish = await session.get(Dish, dish['id'])
                         db_dish.price = dish['price']
                         await session.commit()
-                        print('Изменили цену блюда')
 
                 else:
                     db_dish = Dish(title=dish['title'], description=dish['description'],
                                    price=dish['price'], parent_id=submenu['id'], main_menu_id=submenu['menu_id'])
                     session.add(db_dish)
                     await session.commit()
-                    print('Dish added')
 
-'''
+
 celery = Celery('tasks')
 
 celery.conf.update(
@@ -174,8 +171,10 @@ celery.conf.update(
 
 @celery.task
 def main():
-    # df_menus = read_excel_to_data(menu_file='admin/Menu.xlsx')
+    df_menus = read_excel_to_data(menu_file='admin/Menu.xlsx')
 
-    # for menu in df_menus:
-    #   create_from_file(menu)
-    pass
+    for menu in df_menus:
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(create_from_file(menu))
+
+    return result
