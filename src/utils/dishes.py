@@ -1,33 +1,7 @@
-# from abc import ABC, abstractmethod
-
 from fastapi import HTTPException
 from sqlalchemy import delete, select
 
 from db.db_setup import async_session_maker
-
-'''
-class AbstractRepository(ABC):
-
-    @abstractmethod
-    async def get_dishes(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    async def create_dish(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    async def get_dish(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    async def delete_dish(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    async def update_dish(self):
-        raise NotImplementedError
-'''
 
 
 class SQLAlchemyRepository():  # AbstractRepository

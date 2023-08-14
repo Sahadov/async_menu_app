@@ -25,8 +25,8 @@ class MenuService:
 
     async def create_menu(self, menu: MenuCreate):
         data = await self.menu_repository.create_menu(new_menu=menu)
-        self.cache_client.set(f'{data["id"]}', data, self.background_tasks)
-        self.cache_client.clear_after_change(data['id'], self.background_tasks)
+        await self.cache_client.set(f'{data["id"]}', data, self.background_tasks)
+        await self.cache_client.clear_after_change(data['id'], self.background_tasks)
         return data
 
     async def read_menu(self, menu_id: int):
@@ -35,20 +35,20 @@ class MenuService:
             return cached
         else:
             data = await self.menu_repository.get_menu(menu_id=menu_id)
-            self.cache_client.set(f'{menu_id}', data, self.background_tasks)
+            await self.cache_client.set(f'{menu_id}', data, self.background_tasks)
             return data
 
     async def update_menu(self, menu_id: int, menu: MenuCreate):
         data = await self.menu_repository.update_menu(menu_id=menu_id,
                                                       title=menu.title, description=menu.description)
-        self.cache_client.set(f'{menu_id}', data, self.background_tasks)
-        self.cache_client.clear_after_change(menu_id, self.background_tasks)
+        await self.cache_client.set(f'{menu_id}', data, self.background_tasks)
+        await self.cache_client.clear_after_change(menu_id, self.background_tasks)
         return data
 
     async def remove_menu(self, menu_id: int):
         data = await self.menu_repository.delete_menu(menu_id=menu_id)
-        self.cache_client.delete(f'{menu_id}', self.background_tasks)
-        self.cache_client.clear_after_change(menu_id, self.background_tasks)
+        await self.cache_client.delete(f'{menu_id}', self.background_tasks)
+        await self.cache_client.clear_after_change(menu_id, self.background_tasks)
         return data
 
     async def read_full_menus(self):

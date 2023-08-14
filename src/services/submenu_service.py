@@ -20,15 +20,15 @@ class SubMenuService:
             return cached
         else:
             data = await self.submenu_repository.get_submenus(menu_id)
-            self.cache_client.set(f'all:{menu_id}', data, self.background_tasks)
+            await self.cache_client.set(f'all:{menu_id}', data, self.background_tasks)
             return data
 
     async def create_submenu(self, new_menu: SubMenuCreate, menu_id: int):
         data = await self.submenu_repository.create_submenu(new_menu, menu_id)
         data['id'] = str(data['id'])
         data['parent_id'] = str(data['parent_id'])
-        self.cache_client.set(f'{menu_id}:{data["id"]})', data, self.background_tasks)
-        self.cache_client.clear_after_change(menu_id, self.background_tasks)
+        await self.cache_client.set(f'{menu_id}:{data["id"]})', data, self.background_tasks)
+        await self.cache_client.clear_after_change(menu_id, self.background_tasks)
         return data
 
     async def read_submenu(self, menu_id: int, submenu_id: int):
@@ -37,17 +37,17 @@ class SubMenuService:
             return cached
         else:
             data = await self.submenu_repository.get_submenu(menu_id=menu_id, submenu_id=submenu_id)
-            self.cache_client.set(f'{menu_id}:{submenu_id}', data, self.background_tasks)
+            await self.cache_client.set(f'{menu_id}:{submenu_id}', data, self.background_tasks)
             return data
 
     async def update_submenu(self, submenu_id: int, menu: SubMenuCreate, menu_id: int):
         data = await self.submenu_repository.update_submenu(submenu_id=submenu_id, menu_id=menu_id, title=menu.title, description=menu.description)
-        self.cache_client.set(f'{menu_id}:{submenu_id}', data, self.background_tasks)
-        self.cache_client.clear_after_change(menu_id, self.background_tasks)
+        await self.cache_client.set(f'{menu_id}:{submenu_id}', data, self.background_tasks)
+        await self.cache_client.clear_after_change(menu_id, self.background_tasks)
         return data
 
     async def del_submenu(self, submenu_id: int, menu_id: int):
         data = await self.submenu_repository.delete_submenu(submenu_id=submenu_id, menu_id=menu_id)
-        self.cache_client.delete(f'{menu_id}:{submenu_id}', self.background_tasks)
-        self.cache_client.clear_after_change(menu_id, self.background_tasks)
+        await self.cache_client.delete(f'{menu_id}:{submenu_id}', self.background_tasks)
+        await self.cache_client.clear_after_change(menu_id, self.background_tasks)
         return data

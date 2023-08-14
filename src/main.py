@@ -13,8 +13,8 @@ app.include_router(menus.router, prefix='/api/v1', tags=['Menus'])
 app.include_router(submenus.router, prefix='/api/v1/menus/{menu_id}', tags=['Submenus'])
 app.include_router(dishes.router, prefix='/api/v1/menus/{menu_id}/submenus/{submenu_id}', tags=['Dishes'])
 
-# redis_client = redis.Redis(host='redis', port=5370, db=0) для докера
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
+redis_client = redis.Redis(host='redis', port=5370, db=0)
+# redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
 
 @app.on_event('startup')
