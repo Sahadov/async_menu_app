@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy import delete, select
 
 from db.db_setup import async_session_maker
+from pydantic_schemas.dish import DishCreate
 
 
 class SQLAlchemyRepository():  # AbstractRepository
@@ -13,7 +14,7 @@ class SQLAlchemyRepository():  # AbstractRepository
                                             .where(self.model.parent_id == submenu_id))  # type: ignore
             return db_menu.all()
 
-    async def create_dish(self, new_menu, menu_id: int, submenu_id: int):
+    async def create_dish(self, new_menu: DishCreate, menu_id: int, submenu_id: int):
         async with async_session_maker() as session:
             db_menu = self.model(title=new_menu.title, description=new_menu.description,  # type: ignore
                                  parent_id=submenu_id, price=new_menu.price, main_menu_id=menu_id)  # type: ignore

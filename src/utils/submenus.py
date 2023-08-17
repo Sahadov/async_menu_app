@@ -1,34 +1,9 @@
-# from abc import ABC, abstractmethod
-
 from fastapi import HTTPException
 from sqlalchemy import delete, select
 
 from db.db_setup import async_session_maker
 from db.models.dish import Dish
-
-'''
-class AbstractRepository(ABC):
-
-    @abstractmethod
-    async def get_submenus(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    async def create_submenu(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    async def get_submenu(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    async def delete_submenu(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    async def update_submenu(self):
-        raise NotImplementedError
-'''
+from pydantic_schemas.submenu import SubMenuCreate
 
 
 class SQLAlchemyRepository():  # AbstractRepository
@@ -40,7 +15,7 @@ class SQLAlchemyRepository():  # AbstractRepository
                                             .where(self.model.parent_id == menu_id))  # type: ignore
             return db_menu.all()
 
-    async def create_submenu(self, new_menu, menu_id: int):
+    async def create_submenu(self, new_menu: SubMenuCreate, menu_id: int):
         async with async_session_maker() as session:
             db_menu = self.model(title=new_menu.title, description=new_menu.description,
                                  parent_id=menu_id)  # type: ignore
